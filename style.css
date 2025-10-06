@@ -74,8 +74,9 @@ details summary {
     height: 500px;
     box-shadow: var(--shadow);
     border-radius: 12px;
+    background-color: #e3f2fd; /* Color de fondo base */
 }
-#sky-container, #canvas {
+#canvas {
     position: absolute;
     top: 0;
     left: 0;
@@ -83,19 +84,8 @@ details summary {
     height: 100%;
     border-radius: 12px;
     overflow: hidden;
-}
-#canvas {
     border: 3px dashed var(--border-color);
-    background-color: #e3f2fd;
-    background-size: cover;
-    background-position: center;
     touch-action: none;
-    z-index: 1;
-}
-#sky-container {
-    background-size: cover;
-    background-position: center;
-    z-index: 0;
 }
 .canvas-item {
     position: absolute;
@@ -225,15 +215,18 @@ footer {
         flex-direction: column;
         align-items: center;
     }
+    #build-area {
+        order: 1; /* El lienzo va primero */
+    }
     #layers-panel {
-        order: 3; /* Manda el panel de capas después del área de construcción */
+        order: 2; /* El panel de capas va segundo */
         width: 90%;
         max-width: 500px;
         height: auto;
-        max-height: 200px;
+        max-height: 150px; /* Altura máxima para que no ocupe toda la pantalla */
     }
     #palette {
-        order: 4; /* La paleta va al final */
+        order: 3; /* La paleta va al final */
         position: fixed;
         bottom: 0;
         left: 0;
@@ -245,6 +238,8 @@ footer {
         align-items: center;
         overflow-x: auto;
         padding: 0 10px;
+        background: rgba(255, 255, 255, 0.9);
+        backdrop-filter: blur(5px);
     }
     #palette h2 { display: none; }
     #palette details {

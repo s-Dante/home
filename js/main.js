@@ -1,10 +1,13 @@
+// js/main.js
+
 import { imageAssets, basePath, instagramUsername } from './config.js';
 import { populatePalette, startHeaderImageRotator, updateLayersPanel } from './ui.js';
 import { createItemOnCanvas, deselectAllItems, deleteSelectedItem } from './interactions.js';
 
 document.addEventListener('DOMContentLoaded', () => {
+    // --- Selección de Elementos del DOM ---
+    const canvasWrapper = document.getElementById('canvas-wrapper'); // Usaremos el wrapper para el fondo
     const canvas = document.getElementById('canvas');
-    const skyContainer = document.getElementById('sky-container');
     const saveBtn = document.getElementById('save-btn');
     const shareBtn = document.getElementById('share-btn');
     const resetBtn = document.getElementById('reset-btn');
@@ -31,7 +34,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
         saveBtn.addEventListener('click', () => {
             deselectAllItems();
-            setTimeout(() => { // Pequeño delay para asegurar que la deselección se renderice
+            setTimeout(() => {
                 html2canvas(document.getElementById('canvas-wrapper')).then(canvasElement => {
                     const link = document.createElement('a');
                     link.download = 'mi-hogar-creativo.png';
@@ -40,7 +43,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 });
             }, 100);
         });
-
+        
         shareBtn.addEventListener('click', () => {
             navigator.clipboard.writeText(instagramUsername).then(() => {
                 alert(`¡Usuario "${instagramUsername}" copiado!\n\nAhora sigue estos pasos:\n1. Guarda tu imagen con el botón 💾.\n2. Abre Instagram y crea una historia.\n3. ¡Pega el usuario para etiquetarnos!`);
@@ -52,7 +55,7 @@ document.addEventListener('DOMContentLoaded', () => {
         let isMuted = false;
         document.body.addEventListener('click', () => {
             if (ambientMusic.paused && !isMuted) {
-                ambientMusic.play().catch(() => { });
+                ambientMusic.play().catch(() => {});
             }
         }, { once: true });
 
@@ -71,7 +74,7 @@ document.addEventListener('DOMContentLoaded', () => {
             piece.addEventListener('dragstart', handleDragStart);
             piece.addEventListener('touchstart', handleTouchStart, { passive: false });
         });
-
+        
         document.body.addEventListener('touchmove', handleTouchMove, { passive: false });
         document.body.addEventListener('touchend', handleTouchEnd);
     }
@@ -111,12 +114,12 @@ document.addEventListener('DOMContentLoaded', () => {
             moveGhost(event.touches[0]);
         }
     }
-
+    
     function handleTouchEnd(event) {
         if (touchGhost) {
             const touch = event.changedTouches[0];
             const dropTarget = document.elementFromPoint(touch.clientX, touch.clientY);
-            if (canvas.contains(dropTarget) || skyContainer.contains(dropTarget)) {
+            if (canvas.contains(dropTarget) || canvasWrapper.contains(dropTarget)) {
                 const data = { id: originalPiece.id, category: originalPiece.dataset.category, src: originalPiece.src };
                 placeItem(data, touch);
             }
@@ -124,21 +127,25 @@ document.addEventListener('DOMContentLoaded', () => {
             touchGhost = null;
         }
     }
-
+    
     function moveGhost(touch) {
         touchGhost.style.left = `${touch.clientX - touchGhost.offsetWidth / 2}px`;
         touchGhost.style.top = `${touch.clientY - touchGhost.offsetHeight / 2}px`;
     }
 
+    // --- ¡NUEVA LÓGICA PARA COLOCAR ITEMS! ---
     function placeItem(data, coords) {
+        // Si el objeto es de la categoría "Backgrounds"...
         if (data.category === 'Backgrounds') {
-            canvas.style.backgroundImage = `url(${data.src})`;
-        } else if (data.category === 'Skies') {
-            skyContainer.style.backgroundImage = `url(${data.src})`;
+            // ...lo ponemos como fondo del contenedor principal y se reemplaza si ya hay uno.
+            canvasWrapper.style.backgroundImage = `url(${data.src})`;
+            canvasWrapper.style.backgroundSize = 'cover';
+            canvasWrapper.style.backgroundPosition = 'center';
         } else {
+            // Para todas las demás categorías, creamos un objeto normal en el lienzo.
             createItemOnCanvas(data, coords);
         }
-
+        
         if (!ambientMusic.muted) {
             dropSound.currentTime = 0;
             dropSound.play();

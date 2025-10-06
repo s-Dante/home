@@ -1,13 +1,12 @@
+// js/interactions.js
 import { updateLayersPanel } from './ui.js';
 
 let selectedItem = null;
 let zIndexCounter = 1;
 const canvas = document.getElementById('canvas');
 
-// --- Funciones de Estado ---
 export const getCanvasItems = () => Array.from(canvas.querySelectorAll('.canvas-item'));
 
-// --- Creación y Selección de Items ---
 export function createItemOnCanvas(data, coords) {
     const newItem = document.createElement('img');
     newItem.src = data.src;
@@ -26,9 +25,7 @@ export function createItemOnCanvas(data, coords) {
 }
 
 export function selectItem(item) {
-    if (selectedItem) {
-        selectedItem.classList.remove('selected');
-    }
+    if (selectedItem) selectedItem.classList.remove('selected');
     selectedItem = item;
     if (item) {
         selectedItem.classList.add('selected');
@@ -37,7 +34,6 @@ export function selectItem(item) {
     updateLayersPanel();
 }
 
-// --- Interactividad de Items ---
 function makeItemInteractive(item) {
     const resizeHandle = document.createElement('div');
     resizeHandle.className = 'resize-handle';
@@ -48,9 +44,11 @@ function makeItemInteractive(item) {
 
     resizeHandle.addEventListener('mousedown', (e) => startInteraction(e, 'resize'));
     resizeHandle.addEventListener('touchstart', (e) => startInteraction(e, 'resize'), { passive: false });
+
+    // ¡NUEVO! Evento para la rueda del mouse en PC
+    item.addEventListener('wheel', onWheelResize, { passive: false });
 }
 
-// --- Lógica Central de Interacción ---
 let activeInteraction = null;
 let initialInteractionData = {};
 
@@ -58,24 +56,32 @@ function startInteraction(e, type) {
     e.stopPropagation();
     const item = e.currentTarget.classList.contains('canvas-item') ? e.currentTarget : e.currentTarget.parentElement;
     selectItem(item);
-
     activeInteraction = type;
-    const event = e.touches ? e.touches[0] : e;
+    const isTouchEvent = !!e.touches;
 
-    if (type === 'move') {
-        initialInteractionData = {
-            offsetX: event.clientX - item.getBoundingClientRect().left,
-            offsetY: event.clientY - item.getBoundingClientRect().top
-        };
-    } else if (type === 'resize') {
+    if (isTouchEvent && e.touches.length === 2 && type === 'move') {
+        activeInteraction = 'pinch';
         const itemRect = item.getBoundingClientRect();
         initialInteractionData = {
-            startX: event.clientX,
+            initialDistance: getTouchDistance(e.touches),
             initialWidth: itemRect.width,
             aspectRatio: itemRect.width / itemRect.height
         };
+    } else {
+        const event = isTouchEvent ? e.touches[0] : e;
+        if (type === 'move') {
+            initialInteractionData = {
+                offsetX: event.clientX - item.getBoundingClientRect().left,
+                offsetY: event.clientY - item.getBoundingClientRect().top
+            };
+        } else if (type === 'resize') {
+            initialInteractionData = {
+                startX: event.clientX,
+                initialWidth: item.offsetWidth,
+                aspectRatio: item.offsetWidth / item.offsetHeight
+            };
+        }
     }
-
     document.addEventListener('mousemove', onInteractionMove);
     document.addEventListener('touchmove', onInteractionMove, { passive: false });
     document.addEventListener('mouseup', stopInteraction, { once: true });
@@ -85,7 +91,8 @@ function startInteraction(e, type) {
 function onInteractionMove(e) {
     if (!activeInteraction || !selectedItem) return;
     e.preventDefault();
-    const event = e.touches ? e.touches[0] : e;
+    const isTouchEvent = !!e.touches;
+    const event = isTouchEvent ? e.touches[0] : e;
 
     if (activeInteraction === 'move') {
         const canvasRect = canvas.getBoundingClientRect();
@@ -98,6 +105,30 @@ function onInteractionMove(e) {
             selectedItem.style.width = `${newWidth}px`;
             selectedItem.style.height = `${newWidth / initialInteractionData.aspectRatio}px`;
         }
+    } else if (isTouchEvent && e.touches.length === 2 && activeInteraction === 'pinch') {
+        const newDistance = getTouchDistance(e.touches);
+        const scale = newDistance / initialInteractionData.initialDistance;
+        const newWidth = initialInteractionData.initialWidth * scale;
+        if (newWidth > 20) {
+            selectedItem.style.width = `${newWidth}px`;
+            selectedItem.style.height = `${newWidth / initialInteractionData.aspectRatio}px`;
+        }
+    }
+}
+
+function onWheelResize(e) {
+    e.preventDefault();
+    const item = e.currentTarget;
+    if (item !== selectedItem) selectItem(item);
+    
+    const scaleFactor = 0.1;
+    const currentWidth = item.offsetWidth;
+    const aspectRatio = item.offsetWidth / item.offsetHeight;
+    const newWidth = e.deltaY < 0 ? currentWidth * (1 + scaleFactor) : currentWidth * (1 - scaleFactor);
+
+    if (newWidth > 20) {
+        item.style.width = `${newWidth}px`;
+        item.style.height = `${newWidth / aspectRatio}px`;
     }
 }
 
@@ -107,24 +138,23 @@ function stopInteraction() {
     document.removeEventListener('touchmove', onInteractionMove);
 }
 
-// --- Funciones Globales ---
-export function deselectAllItems() {
-    selectItem(null);
+function getTouchDistance(touches) {
+    const dx = touches[0].clientX - touches[1].clientX;
+    const dy = touches[0].clientY - touches[1].clientY;
+    return Math.sqrt(dx * dx + dy * dy);
 }
+
+export function deselectAllItems() { selectItem(null); }
 
 export function deleteSelectedItem(itemToDelete = selectedItem) {
     if (itemToDelete) {
         const isSelectedItem = itemToDelete === selectedItem;
         itemToDelete.remove();
-        if (isSelectedItem) {
-            selectedItem = null;
-        }
+        if (isSelectedItem) selectedItem = null;
         updateLayersPanel();
     }
 }
 
 document.addEventListener('keydown', (e) => {
-    if (e.key === 'Delete' || e.key === 'Backspace') {
-        deleteSelectedItem();
-    }
+    if (e.key === 'Delete' || e.key === 'Backspace') deleteSelectedItem();
 });
