@@ -1,33 +1,36 @@
 :root {
-    --primary-color: #8ab4f8;
-    --background-color: #f0f4f8;
+    --primary-color: #6da1f5;
+    --background-color: #cbcdcf;
     --dark-text: #3c4043;
     --light-text: #ffffff;
-    --border-color: #dadce0;
+    --border-color: #b0bbcf;
     --shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
 }
+
 body {
-    font-family: 'Mali', cursive;
+    font-family: 'Varien', sans-serif;
     background-color: var(--background-color);
     color: var(--dark-text);
     text-align: center;
     margin: 0;
     padding: 20px 20px 100px 20px;
 }
+
 header h1 {
     display: flex;
     justify-content: center;
     align-items: center;
     gap: 15px;
+    text-transform: uppercase;
 }
+
 #header-example-img {
     width: 60px;
     height: 60px;
-    border-radius: 50%;
     object-fit: cover;
-    box-shadow: var(--shadow);
     transition: transform 0.5s ease;
 }
+
 .container {
     display: flex;
     justify-content: center;
@@ -35,6 +38,7 @@ header h1 {
     gap: 20px;
     flex-wrap: wrap;
 }
+
 #palette {
     background: var(--light-text);
     border-radius: 12px;
@@ -42,25 +46,33 @@ header h1 {
     box-shadow: var(--shadow);
     width: 250px;
     flex-shrink: 0;
+    text-transform: uppercase;
 }
+
 details summary {
     font-weight: 600;
     cursor: pointer;
     padding: 10px;
-    list-style: '🎨 ';
+    list-style: none
+    ;
 }
+
 .piece-container {
     display: flex;
     flex-wrap: wrap;
     gap: 10px;
     padding: 10px;
 }
+
 .piece {
     width: 70px;
     cursor: grab;
     transition: transform 0.2s ease;
 }
-.piece:hover { transform: scale(1.1); }
+
+.piece:hover {
+    transform: scale(1.1);
+}
 
 #build-area {
     display: flex;
@@ -68,14 +80,17 @@ details summary {
     align-items: center;
     gap: 20px;
 }
+
 #canvas-wrapper {
     position: relative;
     width: 500px;
     height: 500px;
     box-shadow: var(--shadow);
     border-radius: 12px;
-    background-color: #e3f2fd; /* Color de fondo base */
+    background-color: #e3f2fd;
+    /* Color de fondo base */
 }
+
 #canvas {
     position: absolute;
     top: 0;
@@ -87,6 +102,7 @@ details summary {
     border: 3px dashed var(--border-color);
     touch-action: none;
 }
+
 .canvas-item {
     position: absolute;
     cursor: move;
@@ -95,9 +111,11 @@ details summary {
     user-select: none;
     -webkit-user-drag: none;
 }
+
 .canvas-item.selected {
     border: 2px dashed var(--primary-color);
 }
+
 .resize-handle {
     position: absolute;
     bottom: -5px;
@@ -111,9 +129,11 @@ details summary {
     display: none;
     z-index: 100;
 }
+
 .canvas-item.selected .resize-handle {
     display: block;
 }
+
 #layers-panel {
     background: var(--light-text);
     border-radius: 12px;
@@ -122,12 +142,15 @@ details summary {
     width: 250px;
     height: 525px;
     overflow-y: auto;
+    text-transform: uppercase;
 }
+
 #layers-list {
     list-style: none;
     padding: 0;
     margin: 0;
 }
+
 .layer-item {
     display: flex;
     align-items: center;
@@ -138,11 +161,16 @@ details summary {
     cursor: pointer;
     transition: background-color 0.2s;
 }
-.layer-item:hover { background-color: #e9ecef; }
+
+.layer-item:hover {
+    background-color: #e9ecef;
+}
+
 .layer-item.selected {
     background-color: var(--primary-color);
     color: white;
 }
+
 .layer-item img {
     width: 40px;
     height: 40px;
@@ -150,6 +178,7 @@ details summary {
     margin-right: 10px;
     pointer-events: none;
 }
+
 .layer-item span {
     flex-grow: 1;
     overflow: hidden;
@@ -157,6 +186,7 @@ details summary {
     white-space: nowrap;
     pointer-events: none;
 }
+
 .layer-delete-btn {
     background: none;
     border: none;
@@ -165,9 +195,16 @@ details summary {
     cursor: pointer;
     padding: 0 5px;
 }
-.layer-item.selected .layer-delete-btn { color: white; }
 
-.controls { display: flex; gap: 15px; }
+.layer-item.selected .layer-delete-btn {
+    color: white;
+}
+
+.controls {
+    display: flex;
+    gap: 15px;
+}
+
 button {
     font-family: 'Mali', cursive;
     font-size: 20px;
@@ -179,15 +216,31 @@ button {
     transition: all 0.2s;
     box-shadow: var(--shadow);
 }
-button:hover { transform: translateY(-2px); }
-#save-btn { background-color: #81c995; color: white; }
+
+button:hover {
+    transform: translateY(-2px);
+}
+
+#save-btn {
+    background-color: #81c995;
+    color: white;
+}
+
 #share-btn {
     background-color: #c38fff;
     color: white;
     display: none;
 }
-#reset-btn { background-color: #f28b82; color: white; }
-#mute-btn { background-color: #ffab40; color: white; }
+
+#reset-btn {
+    background-color: #f28b82;
+    color: white;
+}
+
+#mute-btn {
+    background-color: #ffab40;
+    color: white;
+}
 
 footer {
     background-color: var(--light-text);
@@ -197,36 +250,48 @@ footer {
     border-radius: 12px;
     box-shadow: var(--shadow);
 }
+
 .footer-content .links {
     margin-top: 15px;
     display: flex;
     flex-direction: column;
     gap: 10px;
 }
+
 .footer-content a {
     color: var(--primary-color);
     text-decoration: none;
     font-weight: 600;
 }
-.footer-content a:hover { text-decoration: underline; }
+
+.footer-content a:hover {
+    text-decoration: underline;
+}
 
 @media (max-width: 1100px) {
     .container {
         flex-direction: column;
         align-items: center;
     }
+
     #build-area {
-        order: 1; /* El lienzo va primero */
+        order: 1;
+        /* El lienzo va primero */
     }
+
     #layers-panel {
-        order: 2; /* El panel de capas va segundo */
+        order: 2;
+        /* El panel de capas va segundo */
         width: 90%;
         max-width: 500px;
         height: auto;
-        max-height: 150px; /* Altura máxima para que no ocupe toda la pantalla */
+        max-height: 150px;
+        /* Altura máxima para que no ocupe toda la pantalla */
     }
+
     #palette {
-        order: 3; /* La paleta va al final */
+        order: 3;
+        /* La paleta va al final */
         position: fixed;
         bottom: 0;
         left: 0;
@@ -241,18 +306,25 @@ footer {
         background: rgba(255, 255, 255, 0.9);
         backdrop-filter: blur(5px);
     }
-    #palette h2 { display: none; }
+
+    #palette h2 {
+        display: none;
+    }
+
     #palette details {
         border-bottom: none;
         flex-shrink: 0;
     }
-    #canvas-wrapper, #canvas {
+
+    #canvas-wrapper,
+    #canvas {
         width: 90vw;
         height: 90vw;
         max-width: 500px;
         max-height: 500px;
     }
-     body {
+
+    body {
         padding-bottom: 150px;
     }
 }
